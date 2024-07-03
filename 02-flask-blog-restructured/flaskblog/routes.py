@@ -1,7 +1,7 @@
 from flask import render_template, flash, redirect, url_for, request
 from flask_login import login_user, current_user, logout_user, login_required
 
-from flaskblog.forms import RegistrationForm, LoginForm
+from flaskblog.forms import RegistrationForm, LoginForm, UpdateAccountForm
 from flaskblog.models import User, Post
 from flaskblog import app
 from flaskblog import db, bcrypt
@@ -74,9 +74,31 @@ def logout():
     return redirect(url_for("home"))
 
 
-@app.route("/account")
+@app.route("/account", methods=["GET", "POST"])
 @login_required
 def account():
-    image_file = url_for("static", filename="profile_pics/" + current_user.image_file)  # /static/profile_pics/default.jpg
-    return render_template("account.html", title="Account", image_file=image_file)
-# 02-flask-blog-restructured\flaskblog\static\profile_pics\default.jpg
+    form = UpdateAccountForm()
+    if form.validate_on_submit():
+        current_user.username = form.username.data
+        current_user.email = form.email.data
+        db.session.commit()
+        flash("Your account has been updated!", "success")
+        return redirect(url_for("account"))
+        # `redirect` instead of falling down to `render_template`
+        # - to avoid the form resubmission when the page is refreshed:
+        #  filling the form with previus data (?) or seeing a message like:
+        #  "are you sure you wan to reload? data will be resubmitted" 
+        #  the browser is about to run another POST request when reloading the page
+        #  redirecting couses a browse to send a GET request instead
+        # (this is called POST redirect pattern)
+    elif request.method == "GET":
+        # pre-populating data with the current user data
+        form.username.data = current_user.username
+        form.email.data = current_user.email
+    image_file = url_for("static", filename="profile_pics/" + current_user.image_file)
+    return render_template(
+        "account.html", 
+        title="Account", 
+        image_file=image_file, 
+        form=form
+    )

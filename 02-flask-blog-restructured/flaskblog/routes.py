@@ -1,5 +1,5 @@
-from flask import render_template, flash, redirect, url_for
-from flask_login import login_user, current_user, logout_user
+from flask import render_template, flash, redirect, url_for, request
+from flask_login import login_user, current_user, logout_user, login_required
 
 from flaskblog.forms import RegistrationForm, LoginForm
 from flaskblog.models import User, Post
@@ -60,7 +60,10 @@ def login():
         if user and bcrypt.check_password_hash(user.password, form.password.data):  # user.passowrd - hashed one
             login_user(user, remember=form.remember.data)  # keep logged in if remember me box was checked
             flash("You're succefully logged in!", "success")
-            return redirect(url_for("home"))
+            # if user was rediected to login oage becouse of trying to access the page that requires login
+            # after logging ing he wil be edirected there
+            next_page = request.args.get("next")  # args is a dictionary, but use get to not get an Key error
+            return redirect(next_page) if next_page else redirect(url_for("home"))
         else:
             flash("Login Unsuccessful. Please check email and password", "danger")
     return render_template("login.html", title="Login", form=form) 
@@ -69,3 +72,11 @@ def login():
 def logout():
     logout_user()
     return redirect(url_for("home"))
+
+
+@app.route("/account")
+@login_required
+def account():
+    image_file = url_for("static", filename="profile_pics/" + current_user.image_file)  # /static/profile_pics/default.jpg
+    return render_template("account.html", title="Account", image_file=image_file)
+# 02-flask-blog-restructured\flaskblog\static\profile_pics\default.jpg

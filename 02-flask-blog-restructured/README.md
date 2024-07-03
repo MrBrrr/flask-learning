@@ -37,7 +37,7 @@ bcrypt.check_password_hash(hashed_pwd, "testingqeqe")  # False
 
 ## flask-login plugin
 
-This plagin handles the user session
+This plugin handles the user session. Methods and properties provided by this plugin are available to jinja without explicit passing the as aruments to the `render_template` calls.
 __init__.py
 ``` python
 from flask_login import LoginManager
@@ -82,3 +82,7 @@ def login(self):
         ...
     ...
 ```
+
+### login_required
+
+

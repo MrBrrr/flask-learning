@@ -8,11 +8,12 @@
         <p class="text-secondary">{{ current_user.email }}</p>
       </div>
     </div>
-    <form method="POST" action="">
+    <form method="POST" action="" enctype="multipart/form-data">
+        <!-- It is extremaly important to add enctype for images -->
         <!-- "" in action means that after submitting the form 
             we will go back to the same route that we're currently on -->
         {{ form.hidden_tag() }}
-        <fieldset class="form-group">
+        <fieldset class="form-group pt-2 ">
             <legend class="border-bottom mb-4">Account Info</legend>
             <div class="form-group">
                 {{ form.username.label(class="form-control-label") }}
@@ -27,7 +28,7 @@
                     {{ form.username(class="form-control form-control-lg") }}
                 {% endif %} 
             </div>
-            <div class="form-group">
+            <div class="form-group pt-2">
                 {{ form.email.label(class="form-control-label") }}
                 {% if form.email.errors %}
                     {{ form.email(class="form-control form-control-lg is-invalid") }}
@@ -39,6 +40,16 @@
                 {% else %}
                     {{ form.email(class="form-control form-control-lg") }}
                 {% endif %} 
+            </div>
+            <div class="form-group d-flex flex-column pt-2">
+                {{ form.picture.label() }}
+                {{ form.picture(class="form-control-file pt-1") }}
+                <!-- has to be slightly different for picture field than text fields (above) -->
+                {% if form.picture.errors %}
+                    {% for error in form.picture.errors %}
+                        <span class="text-danger">{{ error }}</span>
+                    {% endfor %}
+                {% endif %}
             </div>
         </fieldset>
         <div class="form-group pt-3">

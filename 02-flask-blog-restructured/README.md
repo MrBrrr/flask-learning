@@ -86,3 +86,29 @@ def login(self):
 ### login_required
 
 
+
+## flask_wtf
+
+### pictures and files: FileField & FileAllowed
+
+forms.py
+```python
+class UpdateAccountForm(FlaskForm):
+    ...
+    picture = FileField("Update profile picture", validators=[FileAllowed(["jpg", "png"])])
+```
+
+routes.py
+```python
+...
+```
+
+It is extremaly important to add enctype for images inside html file:
+```html
+<form method="POST" action="" enctype="mutipart/form-data">
+```
+
+
+## Pillow
+
+library to manage file (images)

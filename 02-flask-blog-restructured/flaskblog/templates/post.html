@@ -1,0 +1,41 @@
+{% extends "layout.html" %}
+{% block content %}
+    <article class="media content-section">
+        <div class="media-body">
+            <div class="article-metadata d-flex bd-highlight">
+                <img class="rounded-circle article-img bd-highlight" src="{{ url_for('static', filename='profile_pics/' + post.author.image_file) }}">
+                <a class="mr-2 mt-4 bd-highlight" href="#">Author: {{ post.author.username }}</a>
+                <div class="ms-auto bd-highlight">
+                    {% if post.author == current_user %}
+                    <a class="btn btn-secondary btn-sm m-1" href="{{ url_for('post_update', post_id=post.id )}}">Update</a>
+                    <button type="button" class="btn btn-danger btn-sm m-1" data-bs-toggle="modal" data-bs-target="#deleteModal">Delete</button>
+                    {% endif  %}
+                    <small class="text-muted m-1">{{ post.date_posted.strftime("%Y-%m-%d") }}</small>
+                </div>
+            </div>
+            <h2>{{ post.title }}</h2>
+            <p class="article-content">{{ post.content }}</p>
+        </div>
+    </article>
+    <!-- Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="deleteModalLabel">You are about to delete the post</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Are you sure you want to delete the post: {{ post.title}}?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <form action="{{ url_for('delete_post', post_id=post.id) }}" method="POST">  
+                        <!-- action - route for officially deleting the post -->
+                        <input type="submit" class="btn btn-danger" value="Delete">
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}

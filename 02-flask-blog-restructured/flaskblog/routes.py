@@ -1,7 +1,7 @@
 import os
 import secrets
 
-from flask import render_template, flash, redirect, url_for, request
+from flask import abort, render_template, flash, redirect, url_for, request
 from flask_login import login_user, current_user, logout_user, login_required
 from PIL import Image 
 
@@ -122,4 +122,52 @@ def new_post():
         db.session.commit()
         flash("Your post has been created", "success")
         return redirect(url_for("home"))
-    return render_template("create_post.html",  title="New Post", form=form)
+    return render_template(
+        "create_post.html",  
+        title="New Post", 
+        form=form,
+        legend="New Post"
+    )
+
+
+@app.route("/post/<int:post_id>", methods=["GET", "POST"])
+@login_required
+def post(post_id):
+    # post = Post.query.get(post_id)
+    post = Post.query.get_or_404(post_id)  # if post does not exist, return 404
+    return render_template("post.html", title=post.title, post=post)
+
+
+@app.route("/post/<int:post_id>/update", methods=["GET", "POST"])
+@login_required
+def post_update(post_id):
+    post = Post.query.get_or_404(post_id)  # if post does not exist, return 404
+    if post.author != current_user:
+        abort(403)
+    form = PostForm()
+    if form.validate_on_submit():
+        post.title = form.title.data
+        post.content = form.content.data
+        db.session.commit()  # post is already in database
+        flash("Your post has been updated", "success")
+        return redirect(url_for("post", post_id=post.id))
+    elif request.method == "GET":
+        form.title.data = post.title
+        form.content.data = post.content
+    return render_template(
+        "create_post.html",  
+        title="Update Post", 
+        form=form,
+        legend=f"Update Post: {post.title}"
+    )
+
+
+@app.route("/post/<int:post_id>/delete", methods=["POST"])
+def delete_post(post_id):
+    post = Post.query.get_or_404(post_id)
+    if post.author != current_user:
+        abort(403)
+    db.session.delete(post)
+    db.session.commit()
+    flash("Your post has been deleted", "success")
+    return redirect(url_for("home"))

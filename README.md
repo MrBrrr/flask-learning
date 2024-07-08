@@ -215,6 +215,29 @@ User.query.all()  # []
 Post.query.all()  # []
 ```
 
+### Queries:
+
+```python
+from flaskblog.models import Post
+
+posts_all = Post.query.all()
+
+
+posts = Post.query.paginate()
+posts.per_page  # 20 
+posts.page  # 1
+
+posts.items == posts_all  # true
+
+posts = Post.query.paginate(page=2) # 2nd page - posts 20-39
+posts = Post.query.paginate(per_page=5) # 1st page - posts 0-4 
+posts = Post.query.paginate(per_page=5, page=2) # 2nd page - posts 10-19 
+
+posts.total  # number off all posts on all pages
+
+
+```
+
 
 
 ## environment variables on windows powershell
